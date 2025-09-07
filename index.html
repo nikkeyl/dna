@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Human DNA Visualizer</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  </head>
+  <body>
+    <div class="main-wrapper">
+      <div class="sidebar medical-container">
+        <h1>Human DNA Visualizer</h1>
+        <div class="input-group">
+          <input
+            type="text"
+            class="sequence-input"
+            id="sequence1"
+            placeholder="Chain 1 (e.g., TAGC)"
+          />
+          <input
+            type="text"
+            class="sequence-input"
+            id="sequence2"
+            placeholder="Chain 2 (will be generated)"
+            readonly
+          />
+        </div>
+        <div class="button-group">
+          <button class="action-button" id="buildButton">Generate DNA</button>
+          <button class="action-button" id="strongestButton">
+            Generate Strongest DNA
+          </button>
+          <!-- <div class="attempts-input-container">
+            <input
+              type="number"
+              id="attemptsInput"
+              value="1000"
+              min="100"
+              max="1000000"
+            />
+            <button class="action-button" id="findTenButton">
+              Find DNA-10
+            </button>
+          </div>
+          <div class="attempts-group">
+            <button id="set1KButton">1K attempts</button>
+            <button id="set10KButton">10K attempts</button>
+            <button id="set100KButton">100K attempts</button>
+          </div> -->
+        </div>
+        <div class="instructions">
+          <h3>🧬 Instructions:</h3>
+          <p>
+            1. <b>Generate DNA:</b> Enter a sequence of A, T, C, or G into
+            'Chain 1'. The program will automatically generate the complementary
+            'Chain 2' and visualize the double helix. Invalid sequences will
+            show an error.
+          </p>
+          <p>
+            2. <b>Generate Strongest DNA:</b> This function attempts to create
+            the most stable DNA possible within a limited number of tries by
+            maximizing the number of G-C pairs, which are more stable than A-T
+            pairs.
+          </p>
+          <p>
+            3. <b>Find DNA-10:</b> Click this button to search for a DNA strand
+            with a perfect stability score of 10. You can choose from preset
+            attempt counts or enter your own value. This process will
+            iteratively generate and test random sequences until a perfect match
+            is found or the attempts run out.
+          </p>
+          <p>
+            4. <b>Stability:</b> DNA stability is a measure of its durability.
+            The score is based on the ratio of G-C pairs to the total number of
+            pairs, as G-C bonds are stronger than A-T bonds. The higher the
+            score, the longer the estimated lifespan.
+          </p>
+        </div>
+      </div>
+      <div class="content-area medical-container">
+        <div id="single-dna-view">
+          <div class="double-canvas-container" id="canvas-container">
+            <div class="canvas-wrapper">
+              <div id="three-canvas-container"></div>
+            </div>
+          </div>
+          <div class="info-panel" id="infoPanel"></div>
+          <div class="legend-container">
+            <div class="legend-item" style="background-color: green">
+              <span>Adenine</span>
+            </div>
+            <div class="legend-item" style="background-color: blue">
+              <span>Thymine</span>
+            </div>
+            <div class="legend-item" style="background-color: orange">
+              <span>Cytosine</span>
+            </div>
+            <div class="legend-item" style="background-color: red">
+              <span>Guanine</span>
+            </div>
+          </div>
+        </div>
+        <div id="comparison-view" style="display: none">
+          <div class="dna-comparison-container">
+            <div class="dna-visualization">
+              <div class="dna-title">Best DNA Found</div>
+              <div id="best-dna-canvas" class="dna-canvas"></div>
+            </div>
+            <div class="dna-visualization">
+              <div class="dna-title">Worst DNA Found</div>
+              <div id="worst-dna-canvas" class="dna-canvas"></div>
+            </div>
+          </div>
+          <div class="comparison-info" id="comparisonInfo"></div>
+          <div class="legend-container">
+            <div class="legend-item" style="background-color: green">
+              <span>Adenine</span>
+            </div>
+            <div class="legend-item" style="background-color: blue">
+              <span>Thymine</span>
+            </div>
+            <div class="legend-item" style="background-color: orange">
+              <span>Cytosine</span>
+            </div>
+            <div class="legend-item" style="background-color: red">
+              <span>Guanine</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script  src="script.js"></script>
+  </body>
+</html>
