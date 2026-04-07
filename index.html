@@ -68,12 +68,12 @@
             </svg>
           </div>
         </label>
-
         <div
           id="dnaFormSection"
           class="flex flex-col gap-2 mb-6 transition-all duration-300 ease-in-out"
         >
           <label
+            for="dnaForm"
             class="text-xs font-semibold text-slate-500 uppercase tracking-wider block select-none"
             >DNA Form / Structure</label
           >
@@ -83,7 +83,6 @@
               <option value="A">A-DNA (Compact)</option>
               <option value="Z">Z-DNA (Left-handed)</option>
             </select>
-
             <button
               type="button"
               id="customSelectBtn"
@@ -107,31 +106,23 @@
                 />
               </svg>
             </button>
-
             <ul
               id="customSelectList"
-              role="listbox"
               class="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg z-50 overflow-hidden transform opacity-0 scale-95 pointer-events-none transition-all duration-300 origin-top"
             >
               <li
-                role="option"
-                aria-selected="true"
                 data-value="B"
                 class="p-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors bg-teal-50/50"
               >
                 B-DNA (Standard)
               </li>
               <li
-                role="option"
-                aria-selected="false"
                 data-value="A"
                 class="p-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
               >
                 A-DNA (Compact)
               </li>
               <li
-                role="option"
-                aria-selected="false"
                 data-value="Z"
                 class="p-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
               >
@@ -140,7 +131,6 @@
             </ul>
           </div>
         </div>
-
         <section class="flex flex-col gap-4 mb-6">
           <div class="relative">
             <label
