@@ -675,15 +675,35 @@ const updateComplementarySequence = () => {
 };
 
 const showNotification = (message) => {
-  const notification = document.createElement("div");
+  let container = document.getElementById("notification-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "notification-container";
+    container.className = "fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end pointer-events-none";
+    document.body.appendChild(container);
+  }
 
+  const notification = document.createElement("div");
   notification.className =
-    "fixed bottom-4 right-4 bg-slate-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm z-50 fade-in";
+    "bg-slate-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm transition-all duration-300 opacity-0 translate-y-2 pointer-events-auto";
   notification.textContent = message;
-  document.body.appendChild(notification);
+  
+  container.appendChild(notification);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      notification.classList.remove("opacity-0", "translate-y-2");
+      notification.classList.add("opacity-100", "translate-y-0");
+    });
+  });
 
   setTimeout(() => {
-    notification.remove();
+    notification.classList.remove("opacity-100", "translate-y-0");
+    notification.classList.add("opacity-0", "translate-y-2");
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 300);
   }, 2000);
 };
 
