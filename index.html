@@ -1,137 +1,415 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Human DNA Visualizer</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
   </head>
-  <body>
-    <div class="main-wrapper">
-      <div class="sidebar medical-container">
-        <h1>Human DNA Visualizer</h1>
-        <div class="input-group">
-          <input
-            type="text"
-            class="sequence-input"
-            id="sequence1"
-            placeholder="Chain 1 (e.g., TAGC)"
-          />
-          <input
-            type="text"
-            class="sequence-input"
-            id="sequence2"
-            placeholder="Chain 2 (will be generated)"
-            readonly
-          />
+  <body
+    class="flex flex-col min-h-screen md:h-screen font-sans text-slate-800 bg-slate-100 antialiased overflow-x-hidden md:overflow-hidden"
+  >
+    <div
+      class="flex flex-1 flex-col md:flex-row w-full h-full md:min-h-0 p-4 md:p-6 gap-6"
+    >
+      <aside
+        class="hide-scrollbar w-full md:w-80 flex flex-col h-full bg-white rounded-2xl p-6 md:overflow-y-auto shrink-0 relative z-10 overscroll-y-none"
+      >
+        <header>
+          <h1
+            class="text-2xl font-bold text-teal-600 text-center mb-8 tracking-wide"
+          >
+            DNA Visualizer
+          </h1>
+        </header>
+        <label
+          for="rnaToggle"
+          class="flex items-center justify-between bg-purple-50 hover:bg-purple-100 rounded-lg p-3 mb-6 cursor-pointer group transition-all duration-300 ease-in-out select-none"
+        >
+          <div
+            class="text-xs font-semibold text-purple-700 uppercase tracking-wider flex items-center gap-2"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            RNA Mode
+          </div>
+          <div class="relative flex items-center justify-center w-5 h-5">
+            <input type="checkbox" id="rnaToggle" class="peer sr-only" />
+            <div
+              class="absolute inset-0 border-2 border-purple-300 rounded peer-checked:bg-purple-600 peer-checked:border-purple-600 transition-all duration-300 ease-in-out bg-white"
+            ></div>
+            <svg
+              class="relative z-10 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-300 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+          </div>
+        </label>
+
+        <div
+          id="dnaFormSection"
+          class="flex flex-col gap-2 mb-6 transition-all duration-300 ease-in-out"
+        >
+          <label
+            class="text-xs font-semibold text-slate-500 uppercase tracking-wider block select-none"
+            >DNA Form / Structure</label
+          >
+          <div class="relative" id="customSelectWrapper">
+            <select id="dnaForm" class="hidden">
+              <option value="B">B-DNA (Standard)</option>
+              <option value="A">A-DNA (Compact)</option>
+              <option value="Z">Z-DNA (Left-handed)</option>
+            </select>
+
+            <button
+              type="button"
+              id="customSelectBtn"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              class="w-full flex justify-between items-center p-3 bg-slate-50 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all duration-300 ease-in-out text-sm text-slate-700 cursor-pointer select-none"
+            >
+              <span id="customSelectValue">B-DNA (Standard)</span>
+              <svg
+                id="customSelectIcon"
+                class="h-4 w-4 text-slate-400 transition-transform duration-300 ease-in-out"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            <ul
+              id="customSelectList"
+              role="listbox"
+              class="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg z-50 overflow-hidden transform opacity-0 scale-95 pointer-events-none transition-all duration-300 origin-top"
+            >
+              <li
+                role="option"
+                aria-selected="true"
+                data-value="B"
+                class="p-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors bg-teal-50/50"
+              >
+                B-DNA (Standard)
+              </li>
+              <li
+                role="option"
+                aria-selected="false"
+                data-value="A"
+                class="p-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
+              >
+                A-DNA (Compact)
+              </li>
+              <li
+                role="option"
+                aria-selected="false"
+                data-value="Z"
+                class="p-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
+              >
+                Z-DNA (Left-handed)
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="button-group">
-          <button class="action-button" id="buildButton">Generate DNA</button>
-          <button class="action-button" id="strongestButton">
-            Generate Strongest DNA
-          </button>
-          <!-- <div class="attempts-input-container">
+
+        <section class="flex flex-col gap-4 mb-6">
+          <div class="relative">
+            <label
+              class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block cursor-pointer transition-all duration-300 ease-in-out select-none"
+              for="sequence1"
+              >Chain 1</label
+            >
             <input
-              type="number"
-              id="attemptsInput"
-              value="1000"
-              min="100"
-              max="1000000"
+              type="text"
+              id="sequence1"
+              class="w-full p-3 bg-slate-50 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none transition-all duration-300 ease-in-out uppercase tracking-widest font-mono text-sm hide-scrollbar"
+              placeholder="e.g. TAGC ATGC"
             />
-            <button class="action-button" id="findTenButton">
-              Find DNA-10
+          </div>
+          <div class="relative">
+            <label
+              class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block transition-all duration-300 ease-in-out select-none"
+              for="sequence2"
+              >Chain 2 (Auto)</label
+            >
+            <input
+              type="text"
+              id="sequence2"
+              class="w-full p-3 bg-slate-100 rounded-lg text-slate-500 font-mono uppercase tracking-widest text-sm cursor-not-allowed transition-all duration-300 ease-in-out hide-scrollbar"
+              placeholder="Complementary"
+              readonly
+            />
+          </div>
+        </section>
+        <button
+          id="scrollDownButton"
+          class="hidden fixed bottom-6 left-6 right-6 z-50 py-3 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold tracking-wide rounded-xl shadow-2xl transition-all duration-300 ease-in-out active:scale-95 flex-row items-center justify-center gap-2 animate-bounce cursor-pointer"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            ></path>
+          </svg>
+          Scroll down to see result
+        </button>
+        <section class="flex flex-col gap-3 mb-8">
+          <button
+            id="buildButton"
+            class="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center gap-2 cursor-pointer select-none"
+            aria-label="Generate DNA"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              ></path>
+            </svg>
+            Generate DNA
+          </button>
+          <button
+            id="strongestButton"
+            class="w-full py-3 bg-teal-50 text-teal-600 hover:bg-teal-100 font-semibold rounded-lg transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center gap-2 cursor-pointer select-none"
+            aria-label="Find Maximum Stability DNA"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              ></path>
+            </svg>
+            Max Stability
+          </button>
+          <button
+            id="mutateButton"
+            class="w-full py-3 bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold rounded-lg transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center gap-2 cursor-pointer select-none"
+            aria-label="Randomly mutate one base"
+          >
+            <svg
+              class="w-5 h-5 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+              />
+            </svg>
+            Mutate Sequence
+          </button>
+        </section>
+        <section class="bg-blue-50 rounded-lg p-4 mb-6 flex-col gap-3">
+          <h3 class="text-slate-700 font-semibold flex items-center gap-2">
+            <svg
+              class="w-5 h-5 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            About Nucleotides
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-2">
+            Nucleotides are the basic building blocks of DNA and RNA:
+          </p>
+          <ul class="text-xs text-slate-600 space-y-1 ml-4 list-disc mb-3">
+            <li><strong class="text-slate-700">A (Adenine)</strong></li>
+            <li>
+              <strong class="text-slate-700">T (Thymine)</strong> — DNA only
+            </li>
+            <li>
+              <strong class="text-slate-700">U (Uracil)</strong> — RNA only
+            </li>
+            <li><strong class="text-slate-700">C (Cytosine)</strong></li>
+            <li><strong class="text-slate-700">G (Guanine)</strong></li>
+          </ul>
+          <p class="text-xs text-amber-700 font-semibold pt-2">
+            ⚠️ Disclaimer: This visualization is an artistic and educational
+            tool. It does not reflect realistic molecular biology or actual
+            genetics.
+          </p>
+        </section>
+        <section
+          class="inline-flex mt-auto pt-6 border-t border-slate-100 flex-col gap-3"
+        >
+          <h3 class="text-slate-700 font-semibold flex items-center gap-2">
+            <svg
+              class="w-5 h-5 text-teal-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            Reference Guide
+          </h3>
+          <ul class="flex flex-col gap-3">
+            <li class="text-sm text-slate-500 leading-relaxed">
+              Enter characters
+              <strong id="validChars" class="text-slate-700">A, T, C, G</strong>
+              or paste a vertical list of sequences.
+            </li>
+            <li class="text-sm text-slate-500 leading-relaxed">
+              <strong class="text-slate-700">Max Stability</strong> algorithm
+              simulates generations to find robust G-C clusters.
+            </li>
+            <li>
+              <strong class="text-slate-700">Iterate</strong> finds the
+              strongest, weakest and mutated variants from a list.
+            </li>
+            <li class="text-sm text-slate-500 leading-relaxed">
+              <strong class="text-slate-700">Mutate Sequence</strong> modifies
+              one random base.
+            </li>
+          </ul>
+        </section>
+      </aside>
+      <main
+        class="flex-1 flex flex-col h-full min-h-[500px] md:min-h-0 bg-white rounded-2xl p-4 md:p-6 overflow-y-auto relative overscroll-y-none"
+      >
+        <section
+          id="single-dna-view"
+          class="flex flex-col flex-1 h-auto min-h-0 w-full relative"
+        >
+          <div class="absolute top-4 left-4 z-10 hidden sm:block">
+            <span
+              class="px-3 py-1 bg-white/80 backdrop-blur-sm border border-slate-200 text-slate-600 text-xs font-semibold rounded-full shadow-sm"
+              >3D Viewport</span
+            >
+          </div>
+          <div class="absolute top-4 right-4 z-10 flex gap-2">
+            <button
+              id="replicateButton"
+              class="px-3 py-1.5 bg-white/80 hover:bg-white backdrop-blur-sm border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
+                ></path>
+              </svg>
+              <span>Replicate</span>
             </button>
           </div>
-          <div class="attempts-group">
-            <button id="set1KButton">1K attempts</button>
-            <button id="set10KButton">10K attempts</button>
-            <button id="set100KButton">100K attempts</button>
-          </div> -->
-        </div>
-        <div class="instructions">
-          <h3>🧬 Instructions:</h3>
-          <p>
-            1. <b>Generate DNA:</b> Enter a sequence of A, T, C, or G into
-            'Chain 1'. The program will automatically generate the complementary
-            'Chain 2' and visualize the double helix. Invalid sequences will
-            show an error.
-          </p>
-          <p>
-            2. <b>Generate Strongest DNA:</b> This function attempts to create
-            the most stable DNA possible within a limited number of tries by
-            maximizing the number of G-C pairs, which are more stable than A-T
-            pairs.
-          </p>
-          <p>
-            3. <b>Find DNA-10:</b> Click this button to search for a DNA strand
-            with a perfect stability score of 10. You can choose from preset
-            attempt counts or enter your own value. This process will
-            iteratively generate and test random sequences until a perfect match
-            is found or the attempts run out.
-          </p>
-          <p>
-            4. <b>Stability:</b> DNA stability is a measure of its durability.
-            The score is based on the ratio of G-C pairs to the total number of
-            pairs, as G-C bonds are stronger than A-T bonds. The higher the
-            score, the longer the estimated lifespan.
-          </p>
-        </div>
-      </div>
-      <div class="content-area medical-container">
-        <div id="single-dna-view">
-          <div class="double-canvas-container" id="canvas-container">
-            <div class="canvas-wrapper">
-              <div id="three-canvas-container"></div>
+          <div
+            id="three-canvas-container"
+            class="flex-1 w-full min-h-[350px] md:min-h-[400px] bg-slate-900 rounded-xl shadow-inner border border-slate-800 relative overflow-hidden transition-all duration-500"
+          ></div>
+          <div
+            id="infoPanel"
+            class="hidden mt-4 p-4 rounded-xl font-medium border text-center text-sm shadow-sm transition-all duration-300 ease-in-out transform scale-95 opacity-0"
+          ></div>
+          <div
+            id="aminoPanel"
+            class="hidden mt-2 p-3 bg-purple-50 border border-purple-200 text-purple-800 rounded-xl text-center text-sm shadow-sm transition-all duration-300 ease-in-out"
+          ></div>
+          <div
+            class="flex flex-wrap justify-center gap-3 mt-4 text-xs font-bold text-white uppercase tracking-wider"
+          >
+            <div
+              class="px-4 py-2 rounded-lg bg-green-600 shadow-sm flex items-center gap-2"
+            >
+              <span class="w-2 h-2 rounded-full bg-white/50 block"></span>
+              Adenine
+            </div>
+            <div
+              class="px-4 py-2 rounded-lg bg-blue-600 shadow-sm flex items-center gap-2"
+            >
+              <span class="w-2 h-2 rounded-full bg-white/50 block"></span>
+              <span id="legend-t">Thymine</span>
+            </div>
+            <div
+              class="px-4 py-2 rounded-lg bg-orange-500 shadow-sm flex items-center gap-2"
+            >
+              <span class="w-2 h-2 rounded-full bg-white/50 block"></span>
+              Cytosine
+            </div>
+            <div
+              class="px-4 py-2 rounded-lg bg-red-600 shadow-sm flex items-center gap-2"
+            >
+              <span class="w-2 h-2 rounded-full bg-white/50 block"></span>
+              Guanine
             </div>
           </div>
-          <div class="info-panel" id="infoPanel"></div>
-          <div class="legend-container">
-            <div class="legend-item" style="background-color: green">
-              <span>Adenine</span>
-            </div>
-            <div class="legend-item" style="background-color: blue">
-              <span>Thymine</span>
-            </div>
-            <div class="legend-item" style="background-color: orange">
-              <span>Cytosine</span>
-            </div>
-            <div class="legend-item" style="background-color: red">
-              <span>Guanine</span>
-            </div>
-          </div>
-        </div>
-        <div id="comparison-view" style="display: none">
-          <div class="dna-comparison-container">
-            <div class="dna-visualization">
-              <div class="dna-title">Best DNA Found</div>
-              <div id="best-dna-canvas" class="dna-canvas"></div>
-            </div>
-            <div class="dna-visualization">
-              <div class="dna-title">Worst DNA Found</div>
-              <div id="worst-dna-canvas" class="dna-canvas"></div>
-            </div>
-          </div>
-          <div class="comparison-info" id="comparisonInfo"></div>
-          <div class="legend-container">
-            <div class="legend-item" style="background-color: green">
-              <span>Adenine</span>
-            </div>
-            <div class="legend-item" style="background-color: blue">
-              <span>Thymine</span>
-            </div>
-            <div class="legend-item" style="background-color: orange">
-              <span>Cytosine</span>
-            </div>
-            <div class="legend-item" style="background-color: red">
-              <span>Guanine</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
-    <script  src="script.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
