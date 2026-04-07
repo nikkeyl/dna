@@ -679,7 +679,8 @@ const showNotification = (message) => {
   if (!container) {
     container = document.createElement("div");
     container.id = "notification-container";
-    container.className = "fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end pointer-events-none";
+    container.className =
+      "fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end pointer-events-none";
     document.body.appendChild(container);
   }
 
@@ -687,7 +688,7 @@ const showNotification = (message) => {
   notification.className =
     "bg-slate-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm transition-all duration-300 opacity-0 translate-y-2 pointer-events-auto";
   notification.textContent = message;
-  
+
   container.appendChild(notification);
 
   requestAnimationFrame(() => {
@@ -700,7 +701,7 @@ const showNotification = (message) => {
   setTimeout(() => {
     notification.classList.remove("opacity-100", "translate-y-0");
     notification.classList.add("opacity-0", "translate-y-2");
-    
+
     setTimeout(() => {
       notification.remove();
     }, 300);
@@ -749,6 +750,17 @@ const toggleRNAMode = () => {
       "aria-label",
       `Generate ${isRNAMode ? "RNA" : "DNA"}`,
     );
+  }
+
+  const replicateButton = document.getElementById("replicateButton");
+  if (replicateButton) {
+    if (isRNAMode) {
+      replicateButton.classList.add("hidden");
+      replicateButton.classList.remove("flex");
+    } else {
+      replicateButton.classList.remove("hidden");
+      replicateButton.classList.add("flex");
+    }
   }
 
   validateAndConvertInput();
@@ -925,6 +937,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const replicateButton = document.getElementById("replicateButton");
   if (replicateButton) {
+    let animFrameId = null;
+
     replicateButton.addEventListener("click", () => {
       if (!holder || holder.children.length === 0) return;
       replicationActive = !replicationActive;
@@ -932,43 +946,66 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Stop</span>`
         : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg><span>Replicate</span>`;
 
-      let animationProgress = 0;
-      const animateHelicase = () => {
-        if (!replicationActive) {
-          buildAndVisualizeDNA();
-          return;
-        }
-        if (animationProgress < holder.children.length) {
-          let hasSeparatedStrands = false;
+      if (holder.userData.separationProgress === undefined) {
+        holder.userData.separationProgress = 0;
+      }
+      const maxSeparation = holder.children.length;
 
+      const animateHelicase = () => {
+        let moved = false;
+
+        if (
+          replicationActive &&
+          holder.userData.separationProgress < maxSeparation
+        ) {
           holder.traverse((meshChild) => {
             if (meshChild.isMesh && meshChild.userData) {
               if (meshChild.userData.isTube1 || meshChild.userData.isRung1) {
                 meshChild.position.x += 0.1;
-                hasSeparatedStrands = true;
+                moved = true;
               }
               if (meshChild.userData.isTube2 || meshChild.userData.isRung2) {
                 meshChild.position.x -= 0.1;
-                hasSeparatedStrands = true;
+                moved = true;
               }
             }
           });
-
-          if (hasSeparatedStrands) {
-            animationProgress += 1;
-            requestAnimationFrame(animateHelicase);
+          if (moved) {
+            holder.userData.separationProgress++;
+            animFrameId = requestAnimationFrame(animateHelicase);
           } else {
             replicationActive = false;
             replicateButton.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg><span>Replicate</span>`;
           }
+        } else if (
+          !replicationActive &&
+          holder.userData.separationProgress > 0
+        ) {
+          holder.traverse((meshChild) => {
+            if (meshChild.isMesh && meshChild.userData) {
+              if (meshChild.userData.isTube1 || meshChild.userData.isRung1) {
+                meshChild.position.x -= 0.1;
+                moved = true;
+              }
+              if (meshChild.userData.isTube2 || meshChild.userData.isRung2) {
+                meshChild.position.x += 0.1;
+                moved = true;
+              }
+            }
+          });
+          if (moved) {
+            holder.userData.separationProgress--;
+            animFrameId = requestAnimationFrame(animateHelicase);
+          }
         }
       };
 
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      animFrameId = requestAnimationFrame(animateHelicase);
+
       if (replicationActive) {
-        animateHelicase();
         showNotification("Replication process started");
       } else {
-        buildAndVisualizeDNA();
         showNotification("Replication stopped");
       }
     });
