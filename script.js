@@ -144,7 +144,7 @@ class DNA {
   }
 }
 
-const initThree = () => {
+const initializeThreeEnvironment = () => {
   const container = document.getElementById("three-canvas-container");
   const width = container.clientWidth;
   const height = container.clientHeight;
@@ -166,9 +166,9 @@ const initThree = () => {
   controls.minDistance = 20;
   controls.maxDistance = 150;
 
-  const ro = new ResizeObserver(() => onWindowResize());
+  const resizeObserver = new ResizeObserver(() => onWindowResize());
 
-  ro.observe(container);
+  resizeObserver.observe(container);
 
   animate();
 };
@@ -193,15 +193,15 @@ const animate = () => {
 };
 
 const drawDNA = (dnaInstance) => {
-    let currentScene = scene;
-    let currentHolder;
+  let currentScene = scene;
+  let currentHolder;
 
-    if (holder) {
-      scene.remove(holder);
-    }
+  if (holder) {
+    scene.remove(holder);
+  }
 
-    currentHolder = new THREE.Object3D();
-    holder = currentHolder;
+  currentHolder = new THREE.Object3D();
+  holder = currentHolder;
 
   if (!dnaInstance || dnaInstance.strand1.length === 0) {
     return;
@@ -253,12 +253,12 @@ const drawDNA = (dnaInstance) => {
     const color1 = nucleotideColors[nucleotide1.type];
     const color2 = nucleotideColors[nucleotide2.type];
 
-    const pos1_at_y = new THREE.Vector3(
+    const position1AtY = new THREE.Vector3(
       baseNucleotideRadius * Math.cos(angle),
       y,
       baseNucleotideRadius * Math.sin(angle),
     );
-    const pos2_at_y = new THREE.Vector3(
+    const position2AtY = new THREE.Vector3(
       -baseNucleotideRadius * Math.cos(angle),
       y,
       -baseNucleotideRadius * Math.sin(angle),
@@ -268,28 +268,28 @@ const drawDNA = (dnaInstance) => {
       const nextY = (i + 1) * pitch - (numNucleotides * pitch) / 2;
       const nextAngle = (i + 1) * angleStep;
 
-      const pos1_next_y = new THREE.Vector3(
+      const position1NextY = new THREE.Vector3(
         baseNucleotideRadius * Math.cos(nextAngle),
         nextY,
         baseNucleotideRadius * Math.sin(nextAngle),
       );
-      const pos2_next_y = new THREE.Vector3(
+      const position2NextY = new THREE.Vector3(
         -baseNucleotideRadius * Math.cos(nextAngle),
         nextY,
         -baseNucleotideRadius * Math.sin(nextAngle),
       );
 
       const tube1 = new THREE.Mesh(tubeGeometry, backboneMaterial1);
-      tube1.position.copy(pos1_at_y).add(pos1_next_y).divideScalar(2);
-      tube1.lookAt(pos1_next_y);
+      tube1.position.copy(position1AtY).add(position1NextY).divideScalar(2);
+      tube1.lookAt(position1NextY);
       tube1.rotateX(Math.PI / 2);
       tube1.userData.isTube1 = true;
       currentHolder.add(tube1);
 
       if (!isRNAMode) {
         const tube2 = new THREE.Mesh(tubeGeometry, backboneMaterial2);
-        tube2.position.copy(pos2_at_y).add(pos2_next_y).divideScalar(2);
-        tube2.lookAt(pos2_next_y);
+        tube2.position.copy(position2AtY).add(position2NextY).divideScalar(2);
+        tube2.lookAt(position2NextY);
         tube2.rotateX(Math.PI / 2);
         tube2.userData.isTube2 = true;
         currentHolder.add(tube2);
@@ -315,7 +315,7 @@ const drawDNA = (dnaInstance) => {
       y,
       (halfRungLength / 2) * Math.sin(angle),
     );
-    rungHalf1.lookAt(pos1_at_y);
+    rungHalf1.lookAt(position1AtY);
     rungHalf1.rotateX(Math.PI / 2);
     rungHalf1.userData.isRung1 = true;
     currentHolder.add(rungHalf1);
@@ -328,7 +328,7 @@ const drawDNA = (dnaInstance) => {
         y,
         (-halfRungLength / 2) * Math.sin(angle),
       );
-      rungHalf2.lookAt(pos2_at_y);
+      rungHalf2.lookAt(position2AtY);
       rungHalf2.rotateX(Math.PI / 2);
       rungHalf2.userData.isRung2 = true;
       currentHolder.add(rungHalf2);
@@ -379,10 +379,9 @@ const updateInfoPanel = (dna, message) => {
     const stability = calculateStability(dna);
     const length = dna.strand1.length;
     const strengthScore = Math.round((stability / length) * 10);
-    const gcPercent = Math.round((stability / length) * 100);
+    const guaninesCytosinesPercentage = Math.round((stability / length) * 100);
 
-    // Rough Tm estimation
-    const tm =
+    const meltingTemperature =
       length < 14
         ? (length - stability) * 2 + stability * 4
         : Math.round(64.9 + (41 * (stability - 16.4)) / length);
@@ -395,15 +394,14 @@ const updateInfoPanel = (dna, message) => {
       colorClasses = "bg-amber-50 border-amber-200 text-amber-700";
 
     infoPanel.innerHTML = `${message} <br>
-      Stability: ${strengthScore}/10 | GC-Content: ${gcPercent}% | Tm: ${tm}°C<br>
+      Stability: ${strengthScore}/10 | GC-Content: ${guaninesCytosinesPercentage}% | Tm: ${meltingTemperature}°C<br>
       Estimated lifespan: ${getLifespan(strengthScore)}`;
 
     colorClasses.split(" ").forEach((cls) => infoPanel.classList.add(cls));
 
-    // Handle Amino Acids Translation
-    const seq = dna.strand1.map((n) => n.type).join("");
-    const rnaSeq = isRNAMode ? seq : seq.replace(/T/g, "U");
-    const codons = rnaSeq.match(/.{1,3}/g);
+    const sequence = dna.strand1.map((n) => n.type).join("");
+    const rnaSequence = isRNAMode ? sequence : sequence.replace(/T/g, "U");
+    const codons = rnaSequence.match(/.{1,3}/g);
 
     if (codons && codons.length > 0) {
       const aminoAcids = codons.map((c) => {
@@ -478,10 +476,14 @@ const showScrollDownButton = () => {
 };
 
 const buildAndVisualizeDNA = () => {
-  const seq1Input = document.getElementById("sequence1").value.toUpperCase();
-  const seq2Input = document.getElementById("sequence2").value.toUpperCase();
+  const sequence1Input = document
+    .getElementById("sequence1")
+    .value.toUpperCase();
+  const sequence2Input = document
+    .getElementById("sequence2")
+    .value.toUpperCase();
   const myDNA = new DNA();
-  const isValid = myDNA.build(seq1Input, seq2Input);
+  const isValid = myDNA.build(sequence1Input, sequence2Input);
 
   if (isValid) {
     drawDNA(myDNA);
@@ -618,7 +620,6 @@ const generateAndVisualizeStrongestDNA = () => {
     document.getElementById("sequence1").value = strongestSequences.strand1;
     document.getElementById("sequence2").value = strongestSequences.strand2;
 
-    // Hide list view if it was open, show single view
     const singleView = document.getElementById("single-dna-view");
     const comparisonView = document.getElementById("comparison-view");
     const listView = document.getElementById("list-view");
@@ -705,27 +706,26 @@ const toggleRNAMode = () => {
     ? "A, U, C, G"
     : "A, T, C, G";
 
-  const seq1Input = document.getElementById("sequence1");
+  const sequence1Input = document.getElementById("sequence1");
 
-  // Convert T <-> U before validating
-  if (seq1Input.value) {
+  if (sequence1Input.value) {
     if (isRNAMode) {
-      seq1Input.value = seq1Input.value.replace(/T/gi, "U");
+      sequence1Input.value = sequence1Input.value.replace(/T/gi, "U");
     } else {
-      seq1Input.value = seq1Input.value.replace(/U/gi, "T");
+      sequence1Input.value = sequence1Input.value.replace(/U/gi, "T");
     }
   }
 
-  seq1Input.placeholder = isRNAMode ? "e.g. UAGC" : "e.g. TAGC";
+  sequence1Input.placeholder = isRNAMode ? "e.g. UAGC" : "e.g. TAGC";
 
-  const buildBtn = document.getElementById("buildButton");
+  const buildButton = document.getElementById("buildButton");
 
-  if (buildBtn) {
-    buildBtn.innerHTML = `
+  if (buildButton) {
+    buildButton.innerHTML = `
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
             Generate ${isRNAMode ? "RNA" : "DNA"}
           `;
-    buildBtn.setAttribute(
+    buildButton.setAttribute(
       "aria-label",
       `Generate ${isRNAMode ? "RNA" : "DNA"}`,
     );
@@ -736,17 +736,17 @@ const toggleRNAMode = () => {
 };
 
 const setupScrollButton = () => {
-  const btn = document.getElementById("scrollDownButton");
+  const button = document.getElementById("scrollDownButton");
 
-  if (btn) {
-    btn.addEventListener("click", () => {
+  if (button) {
+    button.addEventListener("click", () => {
       document.querySelector("main").scrollIntoView({ behavior: "smooth" });
     });
   }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  initThree();
+  initializeThreeEnvironment();
 
   document
     .getElementById("sequence1")
@@ -768,17 +768,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  const customSelectBtn = document.getElementById("customSelectBtn");
+  const customSelectButton = document.getElementById("customSelectBtn");
   const customSelectList = document.getElementById("customSelectList");
   const customSelectValue = document.getElementById("customSelectValue");
   const customSelectIcon = document.getElementById("customSelectIcon");
   const dnaFormSelect = document.getElementById("dnaForm");
 
-  if (customSelectBtn && customSelectList) {
-    customSelectBtn.addEventListener("click", () => {
+  if (customSelectButton && customSelectList) {
+    customSelectButton.addEventListener("click", () => {
       const isExpanded =
-        customSelectBtn.getAttribute("aria-expanded") === "true";
-      customSelectBtn.setAttribute("aria-expanded", !isExpanded);
+        customSelectButton.getAttribute("aria-expanded") === "true";
+      customSelectButton.setAttribute("aria-expanded", !isExpanded);
 
       if (!isExpanded) {
         customSelectList.classList.remove(
@@ -807,31 +807,27 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    customSelectList.addEventListener("click", (e) => {
-      const li = e.target.closest("li");
-      if (!li) return;
+    customSelectList.addEventListener("click", (event) => {
+      const listItem = event.target.closest("li");
+      if (!listItem) return;
 
-      // Remove styling from previous selection
-      customSelectList.querySelectorAll("li").forEach((el) => {
-        el.setAttribute("aria-selected", "false");
-        el.classList.remove("bg-teal-50/50");
+      customSelectList.querySelectorAll("li").forEach((element) => {
+        element.setAttribute("aria-selected", "false");
+        element.classList.remove("bg-teal-50/50");
       });
 
-      // Add styling to new selection
-      li.setAttribute("aria-selected", "true");
-      li.classList.add("bg-teal-50/50");
-      customSelectValue.textContent = li.textContent.trim();
+      listItem.setAttribute("aria-selected", "true");
+      listItem.classList.add("bg-teal-50/50");
+      customSelectValue.textContent = listItem.textContent.trim();
 
-      // Update hidden select
-      const value = li.getAttribute("data-value");
+      const value = listItem.getAttribute("data-value");
       if (dnaFormSelect) {
         dnaFormSelect.value = value;
-        const eChange = new Event("change");
-        dnaFormSelect.dispatchEvent(eChange);
+        const changeEvent = new Event("change");
+        dnaFormSelect.dispatchEvent(changeEvent);
       }
 
-      // Close dropdown
-      customSelectBtn.setAttribute("aria-expanded", "false");
+      customSelectButton.setAttribute("aria-expanded", "false");
       customSelectList.classList.add(
         "opacity-0",
         "scale-95",
@@ -845,13 +841,12 @@ document.addEventListener("DOMContentLoaded", () => {
       customSelectIcon.classList.remove("rotate-180");
     });
 
-    // Close when clicking outside
-    document.addEventListener("click", (e) => {
+    document.addEventListener("click", (event) => {
       if (
-        !customSelectBtn.contains(e.target) &&
-        !customSelectList.contains(e.target)
+        !customSelectButton.contains(event.target) &&
+        !customSelectList.contains(event.target)
       ) {
-        customSelectBtn.setAttribute("aria-expanded", "false");
+        customSelectButton.setAttribute("aria-expanded", "false");
         customSelectList.classList.add(
           "opacity-0",
           "scale-95",
@@ -870,29 +865,40 @@ document.addEventListener("DOMContentLoaded", () => {
   const mutateButton = document.getElementById("mutateButton");
   if (mutateButton) {
     mutateButton.addEventListener("click", () => {
-      const seq1Input = document.getElementById("sequence1");
-      let val = seq1Input.value;
-      if (!val) {
-        val = generateHumanGenomeDNA(10)?.strand1 || "";
+      const sequenceInput = document.getElementById("sequence1");
+      let sequenceValue = sequenceInput.value;
+      if (!sequenceValue) {
+        sequenceValue = generateHumanGenomeDNA(10)?.strand1 || "";
       }
-      if (val) {
-        let idx;
+      if (sequenceValue) {
+        let randomIndex;
         do {
-          idx = Math.floor(Math.random() * val.length);
-        } while (val[idx] === "\n" && val.length > 1);
+          randomIndex = Math.floor(Math.random() * sequenceValue.length);
+        } while (
+          sequenceValue[randomIndex] === "\n" &&
+          sequenceValue.length > 1
+        );
 
-        const bases = isRNAMode ? ["A", "U", "C", "G"] : ["A", "T", "C", "G"];
+        const availableBases = isRNAMode
+          ? ["A", "U", "C", "G"]
+          : ["A", "T", "C", "G"];
         let newBase;
         do {
-          newBase = bases[Math.floor(Math.random() * bases.length)];
-        } while (newBase === val[idx] && bases.length > 1);
+          newBase =
+            availableBases[Math.floor(Math.random() * availableBases.length)];
+        } while (
+          newBase === sequenceValue[randomIndex] &&
+          availableBases.length > 1
+        );
 
-        let arr = val.split("");
-        arr[idx] = newBase;
-        seq1Input.value = arr.join("");
+        let sequenceArray = sequenceValue.split("");
+        sequenceArray[randomIndex] = newBase;
+        sequenceInput.value = sequenceArray.join("");
         validateAndConvertInput();
         buildAndVisualizeDNA();
-        showNotification(`Mutated base at position ${idx + 1} to ${newBase}`);
+        showNotification(
+          `Mutated base at position ${randomIndex + 1} to ${newBase}`,
+        );
       }
     });
   }
@@ -906,33 +912,30 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Stop</span>`
         : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg><span>Replicate</span>`;
 
-      let progress = 0;
+      let animationProgress = 0;
       const animateHelicase = () => {
         if (!replicationActive) {
-          // Reset positions based on original logic or simply redraw
           buildAndVisualizeDNA();
           return;
         }
-        if (progress < holder.children.length) {
-          const separationForce = 15;
-          let separatedAny = false;
+        if (animationProgress < holder.children.length) {
+          let hasSeparatedStrands = false;
 
-          holder.traverse((child) => {
-            if (child.isMesh && child.userData) {
-              // simple replication visual effect - pull strands apart
-              if (child.userData.isTube1 || child.userData.isRung1) {
-                child.position.x += 0.1;
-                separatedAny = true;
+          holder.traverse((meshChild) => {
+            if (meshChild.isMesh && meshChild.userData) {
+              if (meshChild.userData.isTube1 || meshChild.userData.isRung1) {
+                meshChild.position.x += 0.1;
+                hasSeparatedStrands = true;
               }
-              if (child.userData.isTube2 || child.userData.isRung2) {
-                child.position.x -= 0.1;
-                separatedAny = true;
+              if (meshChild.userData.isTube2 || meshChild.userData.isRung2) {
+                meshChild.position.x -= 0.1;
+                hasSeparatedStrands = true;
               }
             }
           });
 
-          if (separatedAny) {
-            progress += 1;
+          if (hasSeparatedStrands) {
+            animationProgress += 1;
             requestAnimationFrame(animateHelicase);
           } else {
             replicationActive = false;
@@ -945,7 +948,7 @@ document.addEventListener("DOMContentLoaded", () => {
         animateHelicase();
         showNotification("Replication process started");
       } else {
-        buildAndVisualizeDNA(); // Reset to start
+        buildAndVisualizeDNA();
         showNotification("Replication stopped");
       }
     });

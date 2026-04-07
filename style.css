@@ -18,10 +18,6 @@
     display: none;
   }
 
-  .dg.ac {
-    z-index: 50 !important;
-  }
-
   .fade-in {
     animation: fadeIn 0.3s ease-in-out forwards;
   }
