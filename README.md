@@ -1,5 +1,7 @@
 # DNA Simulator: Educational Project
 
+![AI](https://img.shields.io/badge/AI-red)
+
 ## About the Project
 
 Hi! This is an educational simulator for those who want to understand the basics of DNA and molecular biology, but aren't ready to read boring and heavy textbooks. 
