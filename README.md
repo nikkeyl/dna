@@ -4,6 +4,8 @@
 
 An interactive educational 3D visualization of DNA and RNA using Three.js.
 
+[Open the demo](https://nikkeyl.github.io/dna/)
+
 ## Overview
 
 DNA Visualizer is a browser experiment for exploring nucleotide sequences,
@@ -26,16 +28,15 @@ use real genomic datasets, or provide validated biological predictions.
 
 ## Getting started
 
-Requirements: Git, Python 3 for the local server below, and a browser
-with WebGL support. No package installation or build step is required.
+Requirements: Git and a browser with WebGL support.
+No package installation or build step is required.
 
 ```sh
 git clone https://github.com/nikkeyl/dna.git
 cd dna
-python3 -m http.server 8000
 ```
 
-Open [localhost:8000](http://localhost:8000).
+Open `index.html` in your browser.
 The page loads Three.js, OrbitControls, and Tailwind CSS from external CDNs,
 so an internet connection is required.
 
