@@ -4,8 +4,6 @@
 
 An interactive educational 3D visualization of DNA and RNA using Three.js.
 
-[Open the demo](https://nikkeyl.github.io/dna/)
-
 ## Overview
 
 DNA Visualizer is a browser experiment for exploring nucleotide sequences,
