@@ -1,28 +1,97 @@
-# DNA Simulator: Educational Project
+# DNA Visualizer
 
 ![AI](https://img.shields.io/badge/AI-red)
 
-## About the Project
+An interactive educational 3D visualization of DNA and RNA using Three.js.
 
-Hi! This is an educational simulator for those who want to understand the basics of DNA and molecular biology, but aren't ready to read boring and heavy textbooks. 
+## Overview
 
-Our main goal is to make science simple, visual, and engaging. The application shows how DNA is structured and how the basic mechanisms of the human genome work.
+DNA Visualizer is a browser experiment for exploring nucleotide sequences,
+complementary base pairing, and simplified 3D structures.
+It builds visual models from entered or randomly generated sequences.
 
-⚠️ **Important note:** The project does not generate real DNA sequences and does not rely on actual medical databases. This is strictly a sandbox for learning and experimentation.
+This is an illustrative learning tool. It does not generate a human genome,
+use real genomic datasets, or provide validated biological predictions.
 
-## Project Objectives
+## Features
 
-* **Accessible Science:** We explain complex genetic processes in simple, plain language.
-* **Visual Clarity:** We interactively show the structure of DNA (adenine, thymine, guanine, cytosine) and how they connect to each other.
-* **Safe Environment:** You can confidently explore the genome without worrying about the complex rules of working with real biodata.
+- Enter a sequence and automatically derive its complementary strand.
+- Rotate and inspect a 3D model with orbit controls.
+- Switch between simplified A-DNA, B-DNA, and Z-DNA representations.
+- Switch to an RNA mode using uracil instead of thymine.
+- Inspect GC content and a simplified melting-temperature estimate.
+- Explore random sequence generation, single-base changes, and a strand
+  separation animation.
+- Display amino-acid labels from sequence triplets.
 
-## Technologies
+## Getting started
 
-The application is built on basic web technologies:
-* HTML5
-* CSS3
-* Vanilla JavaScript
+Requirements: Git, Python 3 for the local server below, and a browser
+with WebGL support. No package installation or build step is required.
 
-## 🤖 Created with AI
+```sh
+git clone https://github.com/nikkeyl/dna.git
+cd dna
+python3 -m http.server 8000
+```
 
-The idea for this project belongs entirely to a human, but all the source code, application architecture, and even the text you are reading right now were written by artificial intelligence. This is a great example of how modern neural networks help bring cool educational ideas to life.
+Open [localhost:8000](http://localhost:8000).
+The page loads Three.js, OrbitControls, and Tailwind CSS from external CDNs,
+so an internet connection is required.
+
+To explore a sequence:
+
+1. Enter `ATGC` in **Chain 1**. The complementary strand appears automatically.
+2. Select **Generate DNA** to build the visual model.
+3. Rotate the model and switch the DNA form.
+4. Enable **RNA Mode** to explore the corresponding simplified representation.
+
+## Implementation
+
+- `index.html` defines the interface and loads external libraries.
+- `script.js` handles sequence validation, model construction, controls,
+  random generation, and displayed metrics.
+- `style.css` contains additional styling.
+
+The application uses vanilla JavaScript and Three.js without a frontend
+framework or build pipeline. This keeps the experiment directly inspectable,
+while depending on CDN-hosted libraries at runtime.
+
+The source code and original documentation were generated with AI.
+
+## Trade-offs and scientific limitations
+
+- Random generation samples bases using fixed probabilities. It does not
+  reproduce the structure or function of a human genome.
+- The displayed **Stability** score is the GC fraction mapped to a 0–10 scale.
+  It is an application heuristic, not a validated measure of overall stability.
+- **Estimated lifespan** is selected from hard-coded ranges. It has no
+  documented scientific basis and should not be interpreted as a prediction.
+- The **strongest** sequence is the candidate with the most G/C bases among
+  the sampled sequences, rather than a biologically optimal sequence.
+- Melting-temperature values use simplified formulas without experimental
+  conditions and are illustrative only.
+- RNA mode, amino-acid labels, and the replication animation are simplified
+  demonstrations rather than complete biological simulations.
+- The current validator requires all four base types to be present across
+  the paired strands. That is an application restriction, not a biological rule.
+
+These limitations apply to the current implementation, including values
+shown in the interface or exported as text.
+
+## Verification
+
+For changes to the model or controls, manually check:
+
+1. Build `ATGC` and verify that its complementary strand is `TACG`.
+2. Enter invalid characters and check the input filtering.
+3. Switch among A-, B-, and Z-DNA views and rotate the model.
+4. Enable RNA mode and verify that `AUGC` pairs with `UACG`.
+5. Try the random-generation, mutation, and strand-separation controls.
+6. Check the layout on desktop and mobile and inspect the browser console.
+
+The repository does not currently include an automated test suite.
+
+## License
+
+[MIT](./LICENSE)
