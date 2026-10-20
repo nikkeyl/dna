@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Human DNA Visualizer</title>
+    <title>DNA Visualizer</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -205,7 +205,7 @@
           <button
             id="strongestButton"
             class="w-full py-3 bg-teal-50 text-teal-600 hover:bg-teal-100 font-semibold rounded-lg transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center gap-2 cursor-pointer select-none"
-            aria-label="Find Maximum Stability DNA"
+            aria-label="Find highest GC content among random samples"
           >
             <svg
               class="w-5 h-5"
@@ -221,7 +221,7 @@
                 d="M13 10V3L4 14h7v7l9-11h-7z"
               ></path>
             </svg>
-            Max Stability
+            Find High GC
           </button>
           <button
             id="mutateButton"
@@ -278,8 +278,8 @@
           </ul>
           <p class="text-xs text-amber-700 font-semibold pt-2">
             ⚠️ Disclaimer: This visualization is an artistic and educational
-            tool. It does not reflect realistic molecular biology or actual
-            genetics.
+            tool. GC content is not an overall stability score. Molecular
+            stability and lifespan are not predicted.
           </p>
         </section>
         <section
@@ -309,12 +309,9 @@
               or paste a vertical list of sequences.
             </li>
             <li class="text-sm text-slate-500 leading-relaxed">
-              <strong class="text-slate-700">Max Stability</strong> algorithm
-              simulates generations to find robust G-C clusters.
-            </li>
-            <li>
-              <strong class="text-slate-700">Iterate</strong> finds the
-              strongest, weakest and mutated variants from a list.
+              <strong class="text-slate-700">Find High GC</strong> selects the
+              sequence with the most G/C bases from 10,000 random samples of
+              15 bases. It does not find a biologically optimal sequence.
             </li>
             <li class="text-sm text-slate-500 leading-relaxed">
               <strong class="text-slate-700">Mutate Sequence</strong> modifies

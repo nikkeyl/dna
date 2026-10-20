@@ -345,19 +345,8 @@ const clearCanvas = () => {
   }
 };
 
-const calculateStability = (dna) => {
+const countGCBases = (dna) => {
   return dna.strand1.filter((n) => n.type === "G" || n.type === "C").length;
-};
-
-const getLifespan = (strengthScore) => {
-  if (strengthScore <= 1) return "less than 10 years";
-  if (strengthScore <= 3) return "100 - 1000 years";
-  if (strengthScore <= 5) return "10 thousand years";
-  if (strengthScore <= 7) return "1 million years";
-  if (strengthScore <= 9) return "100 million years";
-  if (strengthScore === 10) return "10 billion years";
-
-  return "Unknown";
 };
 
 const updateInfoPanel = (dna, message) => {
@@ -375,27 +364,19 @@ const updateInfoPanel = (dna, message) => {
     infoPanel.innerHTML = message;
     infoPanel.classList.add("bg-red-50", "border-red-200", "text-red-700");
   } else {
-    const stability = calculateStability(dna);
+    const gcCount = countGCBases(dna);
     const length = dna.strand1.length;
-    const strengthScore = Math.round((stability / length) * 10);
-    const guaninesCytosinesPercentage = Math.round((stability / length) * 100);
+    const guaninesCytosinesPercentage = Math.round((gcCount / length) * 100);
     const meltingTemperature =
       length < 14
-        ? (length - stability) * 2 + stability * 4
-        : Math.round(64.9 + (41 * (stability - 16.4)) / length);
+        ? (length - gcCount) * 2 + gcCount * 4
+        : Math.round(64.9 + (41 * (gcCount - 16.4)) / length);
 
-    let colorClasses = "bg-green-50 border-green-200 text-green-700";
-
-    if (strengthScore <= 3)
-      colorClasses = "bg-red-50 border-red-200 text-red-700";
-    else if (strengthScore <= 7)
-      colorClasses = "bg-amber-50 border-amber-200 text-amber-700";
-
-    infoPanel.innerHTML = `${message} <br>
-      Stability: ${strengthScore}/10 | GC-Content: ${guaninesCytosinesPercentage}% | Tm: ${meltingTemperature}°C<br>
-      Estimated lifespan: ${getLifespan(strengthScore)}`;
-
-    colorClasses.split(" ").forEach((cls) => infoPanel.classList.add(cls));
+    infoPanel.classList.add("bg-blue-50", "border-blue-200", "text-blue-800");
+    infoPanel.innerHTML = `${message}<br>
+      GC content: ${guaninesCytosinesPercentage}% | Simplified Tm estimate: ${meltingTemperature}°C<br>
+      GC content is the proportion of G/C bases, not an overall stability score.<br>
+      Educational model only. Tm is illustrative; molecular stability and lifespan are not predicted.`;
 
     const sequence = dna.strand1.map((n) => n.type).join("");
     const rnaSequence = isRNAMode ? sequence : sequence.replace(/T/g, "U");
@@ -415,22 +396,24 @@ const updateInfoPanel = (dna, message) => {
   infoPanel.style.display = "block";
 };
 
-const downloadDNA = (dnaInstance, strengthScore, filename) => {
+const downloadDNA = (dnaInstance, filename) => {
   const sequence1 = dnaInstance.strand1.map((n) => n.type).join("");
   const sequence2 = dnaInstance.strand2.map((n) => n.type).join("");
-  const lifespan = getLifespan(strengthScore);
+  const gcPercentage = Math.round(
+    (countGCBases(dnaInstance) / sequence1.length) * 100,
+  );
   const modeName = isRNAMode ? "RNA" : "DNA";
   const content = `---
 ${modeName} Search Result
 ---
 
-Found ${modeName} with stability: ${strengthScore}/10
-Estimated lifespan: ${lifespan}
+GC content: ${gcPercentage}%
 
 Chain 1: ${sequence1}
 Chain 2: ${sequence2}
 
-This ${modeName} has high stability due to a large number of guanine-cytosine (G-C) pairs.`;
+GC content is the proportion of G/C bases, not an overall stability score.
+Educational model only. Molecular stability and lifespan are not predicted.`;
 
   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -444,19 +427,16 @@ This ${modeName} has high stability due to a large number of guanine-cytosine (G
   URL.revokeObjectURL(url);
 };
 
-const handleDNAStrength = (dnaInstance, message) => {
-  const stability = calculateStability(dnaInstance);
-  const strengthScore = Math.round(
-    (stability / dnaInstance.strand1.length) * 10,
-  );
+const handleSequenceResult = (dnaInstance, message) => {
+  const gcCount = countGCBases(dnaInstance);
+  const gcFraction = gcCount / dnaInstance.strand1.length;
 
   updateInfoPanel(dnaInstance, message);
 
-  if (strengthScore === 10) {
+  if (gcFraction >= 0.95) {
     downloadDNA(
       dnaInstance,
-      strengthScore,
-      `${isRNAMode ? "RNA" : "DNA"}_Strength_10.txt`,
+      `${isRNAMode ? "RNA" : "DNA"}_High_GC.txt`,
     );
   }
 };
@@ -489,7 +469,7 @@ const buildAndVisualizeDNA = () => {
 
     const modeName = isRNAMode ? "RNA" : "DNA";
 
-    handleDNAStrength(myDNA, `${modeName} built successfully!`);
+    handleSequenceResult(myDNA, `${modeName} built successfully!`);
 
     const singleView = document.getElementById("single-dna-view");
     const comparisonView = document.getElementById("comparison-view");
@@ -520,7 +500,7 @@ const buildAndVisualizeDNA = () => {
   }
 };
 
-const generateHumanGenomeDNA = (length) => {
+const generateRandomSequence = (length) => {
   const probabilities = isRNAMode
     ? { A: 0.2953, U: 0.2957, G: 0.2046, C: 0.2044 }
     : { A: 0.2953, T: 0.2957, G: 0.2046, C: 0.2044 };
@@ -584,43 +564,46 @@ const generateHumanGenomeDNA = (length) => {
   };
 };
 
-const generateAndVisualizeStrongestDNA = () => {
-  const numGenerations = 10000;
+const generateAndVisualizeHighGCDNA = () => {
+  const numSamples = 10000;
   const dnaLength = 15;
 
-  let strongestDNA = null;
-  let maxStability = -1;
+  let highestGCDNA = null;
+  let maxGCCount = -1;
 
-  const strongestSequences = { strand1: "", strand2: "" };
+  const highestGCSequences = { strand1: "", strand2: "" };
 
-  for (let i = 0; i < numGenerations; i++) {
-    const sequences = generateHumanGenomeDNA(dnaLength);
+  for (let i = 0; i < numSamples; i++) {
+    const sequences = generateRandomSequence(dnaLength);
 
     if (!sequences) continue;
 
     const tempDNA = new DNA();
 
     if (tempDNA.build(sequences.strand1, sequences.strand2)) {
-      const stability = calculateStability(tempDNA);
+      const gcCount = countGCBases(tempDNA);
 
-      if (stability > maxStability) {
-        maxStability = stability;
-        strongestDNA = tempDNA;
+      if (gcCount > maxGCCount) {
+        maxGCCount = gcCount;
+        highestGCDNA = tempDNA;
 
-        Object.assign(strongestSequences, sequences);
+        Object.assign(highestGCSequences, sequences);
       }
     }
   }
 
-  if (strongestDNA) {
-    drawDNA(strongestDNA);
+  if (highestGCDNA) {
+    drawDNA(highestGCDNA);
 
     const modeName = isRNAMode ? "RNA" : "DNA";
 
-    handleDNAStrength(strongestDNA, `Generated strongest ${modeName}`);
+    handleSequenceResult(
+      highestGCDNA,
+      `Selected the highest-GC ${modeName} from ${numSamples.toLocaleString("en-US")} random samples`,
+    );
 
-    document.getElementById("sequence1").value = strongestSequences.strand1;
-    document.getElementById("sequence2").value = strongestSequences.strand2;
+    document.getElementById("sequence1").value = highestGCSequences.strand1;
+    document.getElementById("sequence2").value = highestGCSequences.strand2;
 
     const singleView = document.getElementById("single-dna-view");
     const comparisonView = document.getElementById("comparison-view");
@@ -797,7 +780,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", buildAndVisualizeDNA);
   document
     .getElementById("strongestButton")
-    ?.addEventListener("click", generateAndVisualizeStrongestDNA);
+    ?.addEventListener("click", generateAndVisualizeHighGCDNA);
   document
     .getElementById("rnaToggle")
     ?.addEventListener("change", toggleRNAMode);
@@ -918,7 +901,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let sequenceValue = sequenceInput.value;
 
       if (!sequenceValue) {
-        sequenceValue = generateHumanGenomeDNA(10)?.strand1 || "";
+        sequenceValue = generateRandomSequence(10)?.strand1 || "";
       }
 
       if (sequenceValue) {

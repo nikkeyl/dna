@@ -71,14 +71,15 @@ The source code and original documentation were generated with AI.
 - Random generation samples bases using fixed probabilities. It does not
   reproduce the structure or function of a human genome.
 
-- The displayed **Stability** score is the GC fraction mapped to a 0–10 scale.
-  It is an application heuristic, not a validated measure of overall stability.
+- **GC content** reports the proportion of G/C bases. It is not an overall
+  stability score; the application does not predict molecular stability
+  or lifespan.
 
-- **Estimated lifespan** is selected from hard-coded ranges. It has no
-  documented scientific basis and should not be interpreted as a prediction.
+- **Find High GC** selects the sequence with the most G/C bases among 10,000
+  random samples of 15 bases. It does not find a biologically optimal sequence.
 
-- The **strongest** sequence is the candidate with the most G/C bases among
-  the sampled sequences, rather than a biologically optimal sequence.
+- Sequences with at least 95% GC automatically export as text. This is a
+  composition threshold, not evidence of biological quality.
 
 - Melting-temperature values use simplified formulas without experimental
   conditions and are illustrative only.
