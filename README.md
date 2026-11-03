@@ -93,19 +93,6 @@ The source code and original documentation were generated with AI.
 These limitations apply to the current implementation, including values
 shown in the interface or exported as text.
 
-## Verification
-
-For changes to the model or controls, manually check:
-
-1. Build `ATGC` and verify that its complementary strand is `TACG`.
-1. Enter invalid characters and check the input filtering.
-1. Switch among A-, B-, and Z-DNA views and rotate the model.
-1. Enable RNA mode and verify that `AUGC` pairs with `UACG`.
-1. Try the random-generation, mutation, and strand-separation controls.
-1. Check the layout on desktop and mobile and inspect the browser console.
-
-The repository does not currently include an automated test suite.
-
 ## License
 
 [MIT](./LICENSE)
