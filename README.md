@@ -28,15 +28,6 @@ CSS loaded from CDNs.
 - Requiring all four base types across paired strands is an application
   restriction, not a biological rule.
 
-## Files
-
-- `index.html` — interface and CDN scripts.
-
-- `script.js` — sequence validation, random generation, 3D geometry, interaction
-  controls and displayed metrics.
-
-- `style.css` — additional styles.
-
 ## License
 
 [MIT](LICENSE).
