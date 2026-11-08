@@ -7,8 +7,6 @@ original documentation were generated with AI.
 
 [Open the demo](https://nikkeyl.github.io/dna/).
 
-![DNA Visualizer with a complementary sequence](assets/preview.jpg)
-
 ## Open locally
 
 Open `index.html` in a browser with WebGL support. There is no installation
