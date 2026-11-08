@@ -24,10 +24,14 @@ viewport to rotate the model and scroll to zoom.
 
 ## What the model means
 
-The helix shapes, RNA representation, amino-acid labels and strand
-separation are simplified demonstrations. The app does not simulate a genome
-or predict molecular stability or lifespan. GC content describes base
-composition; the melting-temperature estimate omits experimental conditions.
+> [!IMPORTANT]
+>
+> The helix shapes, RNA representation, amino-acid labels and strand
+> separation are simplified demonstrations. The app does not simulate a
+> genome or predict molecular stability or lifespan.
+
+GC content describes base composition; the melting-temperature estimate
+omits experimental conditions.
 
 The app requires all four base types across paired strands. That is an input
 restriction of this implementation. Its high-GC export threshold is not a
