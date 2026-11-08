@@ -5,8 +5,6 @@
 An educational DNA/RNA visualization built with Three.js. The code and
 original documentation were generated with AI.
 
-[Open the demo](https://nikkeyl.github.io/dna/).
-
 ## Open locally
 
 Open `index.html` in a browser with WebGL support. There is no installation
